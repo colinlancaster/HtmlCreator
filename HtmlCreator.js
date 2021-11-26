@@ -166,6 +166,7 @@ const attributes = [
  * @params {HtmlElement} elem The element you are wanting to create. Represented by a string (e.g. 'div') or an actual HtmlElement.
 */
 function HtmlCreator(elem) {
+  if (isNullOrUndefined(elem)) { return; }
   this.element = (elem instanceof HtmlElement) ? elem : document.createElement(elem);
 };
 
@@ -183,17 +184,28 @@ HtmlCreator.prototype.Id = function(id) {
   return this;
 };
 
-// Add a single class
-// appends to the end of existing classes
+/**Adds a single class to the element.
+ * 
+ * @param {String} className - The name of the class you want to add to the element.
+*/
 HtmlCreator.prototype.Class = function(className) {
+  if (isNullOrUndefined(className)) { return; }
+
   className && this.element.classList.add(className);
   return this;
 };
 
-// Add multiple classes. Use of rest parameter
-// allows classNames to be either a comma-
-// separated list or an array of args.
+/**Adds multiple classes to the element.
+ * 
+ * @param  {...classNames} classNames - An array or set of comma-separated strings that
+ * represent the class names you want to add.
+ * 
+ * @example someElement.Classes(['class1', 'class2', 'class3']);
+ * @example someElement.Classes('class1', 'class2', 'class3');
+ */
 HtmlCreator.prototype.Classes = function(...classNames) {
+  if (isNullOrUndefined(classNames)) { return; }
+
   for (className of classNames) {
       this.Class(className);
   }
@@ -201,12 +213,14 @@ HtmlCreator.prototype.Classes = function(...classNames) {
   return this;
 };
 
-// Add text content to element
+/**Adds textContent to the element.
+ * 
+ * @params {String} text - The text that you would like to be the textContent.
+*/
 HtmlCreator.prototype.TextContent = function(text = '') {
   this.element.textContent = text;
   return this;
 };
-
 
 // {
 //     elem: 'div',
@@ -237,7 +251,8 @@ HtmlCreator.prototype.AddChildren = function(children = []) {
   return this;
 };
 
-// Html.Element.prototype.AddAttribute = function(attribute, value) { // global - add if attribute is known.}
+Html.Element.prototype.AddAttribute = function(attribute, value) { }
+
 // Html.Element.prototype.DataAttribute = function() { // global }
 // Html.Element.prototype.Draggable = function() { // global }
 // Html.Element.prototype.OnClick = function(functionReference) { // global / all visible elements }
@@ -265,17 +280,15 @@ HtmlCreator.prototype.AddChildren = function(children = []) {
 // Html.Element.prototype.Selected = function() { // only for select }
 // Html.Element.prototype.OptGroup = function(optgroupLabelName, [options]) { // only for select }
 
-
 /**Sets the `name` attribute on a variety of elements.
  *
- * @param el {HtmlElement} The element you are setting the `name` attribute on.
  * @param action {String} The value of the `name` attribute, e.g. 'MyName'.
 */
-HtmlCreator.prototype.Name = function(el, name) {
+HtmlCreator.prototype.Name = function(name) {
     const types = ['button', 'fieldset', 'form', 'iframe', 'input', 'map', 'meta', 'object', 'output', 'param', 'select', 'textarea'];
-    if (!htmlIsOfType(el, types)) { return; }
+    if (!htmlIsOfType(this.element, types)) { return; }
 
-    el.name = name;
+    this.element.name = name;
 
     return this;
 }
@@ -284,13 +297,12 @@ HtmlCreator.prototype.Name = function(el, name) {
 
 /**Sets the `action` attribute on a `form` element.
  *
- * @param formElement {HtmlElement} The form element you are setting the `action` attribute on.
  * @param action {String} The value of the `action` attribute, e.g. 'www.mysite.com'.
 */
-HtmlCreator.prototype.action = function(formElement, action = '') {
-    if (!htmlIsOfType(formElement, ['form'])) { return; };
+HtmlCreator.prototype.action = function(action = '') {
+    if (!htmlIsOfType(this.element, ['form'])) { return; };
 
-    formElement.action = action.toLowerCase();
+    this.element.action = action.toLowerCase();
 
     return this;
 }
@@ -300,21 +312,19 @@ HtmlCreator.prototype.action = function(formElement, action = '') {
  * @param formElement {HtmlElement} The form element you are setting the `method` attribute on.
  * @param method {String} The value of the `action` attribute, e.g. 'post'.
  */
-HtmlCreator.prototype.method = function(formElement, method = '') {
-    if (!htmlIsOfType(formElement, ['form'])) { return; }
+HtmlCreator.prototype.method = function(method = '') {
+    if (!htmlIsOfType(this.element, ['form'])) { return; }
 
-    formElement.method = method.toLowerCase();
+    this.element.method = method.toLowerCase();
 
     return this;
  }
-
 
 // Appends an HtmlElement's inner element property
 // to the current HtmlElement. Not chainable,
 // but would be if you add return this.
 HtmlCreator.prototype.Append = function(HtmlCreator) {
   this.element.appendChild(HtmlCreator.element);
-
   return this;
 };
 
@@ -323,7 +333,6 @@ HtmlCreator.prototype.Append = function(HtmlCreator) {
 // Return this to make chainable.
 HtmlCreator.prototype.AppendTo = function(domElement) {
   domElement.appendChild(this.element);
-
   return this;
 };
 
