@@ -1,4 +1,4 @@
-const attributes = [
+const allAttributes = [
   "accept",
   "accept-charset",
   "accesskey",
@@ -185,7 +185,7 @@ HtmlCreator.prototype.Id = function(id) {
 };
 
 /**Adds a single class to the element.
- * 
+ *
  * @param {String} className - The name of the class you want to add to the element.
 */
 HtmlCreator.prototype.Class = function(className) {
@@ -196,10 +196,10 @@ HtmlCreator.prototype.Class = function(className) {
 };
 
 /**Adds multiple classes to the element.
- * 
+ *
  * @param  {...classNames} classNames - An array or set of comma-separated strings that
  * represent the class names you want to add.
- * 
+ *
  * @example someElement.Classes(['class1', 'class2', 'class3']);
  * @example someElement.Classes('class1', 'class2', 'class3');
  */
@@ -214,7 +214,7 @@ HtmlCreator.prototype.Classes = function(...classNames) {
 };
 
 /**Adds textContent to the element.
- * 
+ *
  * @params {String} text - The text that you would like to be the textContent.
 */
 HtmlCreator.prototype.TextContent = function(text = '') {
@@ -251,31 +251,185 @@ HtmlCreator.prototype.AddChildren = function(children = []) {
   return this;
 };
 
-Html.Element.prototype.AddAttribute = function(attribute, value) { }
+Html.Element.prototype.AddAttribute = function(attribute, value) {
+    // Todo, implement attributeIsOfType
+    if (!attributeIsOfType(attribute, allAttributes)) { return; }
 
-// Html.Element.prototype.DataAttribute = function() { // global }
-// Html.Element.prototype.Draggable = function() { // global }
-// Html.Element.prototype.OnClick = function(functionReference) { // global / all visible elements }
+    this.element.setAttribute(attribute, value);
+
+    return this;
+}
+
+Html.Element.prototype.DataAttribute = function(dataAttribute, value) {
+    if (isNullOrUndefined(dataAttribute) || isNullOrUndefined(value)) { return; }
+
+    this.element.setAttribute(dataAttribute, value);
+
+    return this;
+}
+
+/**Since this is truly a global function, there is nothing to check. */
+Html.Element.prototype.Draggable = function() {
+    this.element.draggable = true;
+
+    return this;
+}
+
+Html.Element.prototype.OnClick = function(functionReference) {
+    if (isNullOrUndefined(functionReference)) { return; }
+    // TODO: Check for the shape of a function call with regex.
+
+    this.element.setAttribute('onclick', functionReference);
+
+    return this;
+}
 
 // Shared Attributes (but not global)
-// Html.Element.prototype.Required = function() {// if input, select, textarea}
-// Html.Element.prototype.Checked = function() { // input }
-// Html.Element.prototype.AltText = function() { // alt - area, img, input }
-// Html.Element.prototype.Autofocus = function() { // button, input, select, textarea }
-// Html.Element.prototype.Target = function() { // a, area, base, form } //_blank, _parent, _self, _top
-// Html.Element.prototype.Rel = function() { // a, area, form, link }
-// Html.Element.prototype.Disabled = function() { // button, fieldset, input, optgroup, option, select, textarea }
-// Html.Element.prototype.For = function() { // label, output }
-// Html.Element.prototype.Src = function() { // audio, embed, iframe, img, input, script, source, track, video }
-// Html.Element.prototype.Value = function() {// button, input, li, option, meter, progress, param}
-// Html.Element.prototype.Href = function() { // a, area, base, link }
-// Html.Element.prototype.Placeholder = function() {// if input or textarea}
-// Html.Element.prototype.Max = function() { // input, meter, progress }
-// Html.Element.prototype.MaxLength = function() {}
-// Html.Element.prototype.Min = function() { // input, meter }
+Html.Element.prototype.Required = function() {
+    // if input, select, textarea
+    const types = ['input', 'select', 'textarea'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.required = true;
+
+    return this;
+}
+
+
+Html.Element.prototype.Checked = function() {
+    const types = ['input'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.checked = true;
+
+    return this;
+}
+
+
+Html.Element.prototype.AltText = function(altText = '') {
+    const types = ['area', 'img', 'input'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.alt = altText;
+}
+
+Html.Element.prototype.Autofocus = function() {
+    // button, input, select, textarea 
+    const types = ['button', 'input', 'select', 'textarea'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.autofocus = true;
+
+    return this;
+}
+
+//_blank, _parent, _self, _top
+Html.Element.prototype.Target = function(target = '') {
+    const types = ['a', 'area', 'base', 'form'];
+    const targets = ['_blank', '_parent', '_self', '_top'];
+
+    if (!htmlIsOfType(this.element, types)) { return; }
+    if (!targets.includes(target)) { return; }
+
+    this.element.target = target;
+
+    return this;
+}
+
+Html.Element.prototype.Rel = function(rel = '') {
+    const types = ['a', 'area', 'form', 'link'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.rel = rel;
+
+    return this;
+}
+
+Html.Element.prototype.Disabled = function() {
+    const types = ['button', 'fieldset', 'input', 'optgroup', 'option', 'select', 'textarea'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.setAttribute('disabled', true);
+
+    return this;
+}
+
+Html.Element.prototype.For = function(forAttributeValue = '') {
+    const types = ['label', 'output'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.htmlFor = forAttributeValue;
+
+    return this;
+}
+
+Html.Element.prototype.Src = function(src  = '') {
+    const types = ['audio', 'embed', 'iframe', 'img', 'input', 'script', 'source', 'track', 'video'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.src = src;
+
+    return this;
+}
+
+Html.Element.prototype.Value = function(value = '') {
+    const types = ['button', 'input', 'li', 'option', 'meter', 'progress', 'param'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.value = value;
+
+    return this;
+}
+
+Html.Element.prototype.Href = function(href = '') {
+    const types = ['a', 'area', 'base', 'link'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.href = href;
+
+    return this;
+}
+
+Html.Element.prototype.Placeholder = function(placeholder = '') {
+    const types = ['input', 'textarea'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.placeholder = placeholder;
+
+    return this;
+}
+
+Html.Element.prototype.Max = function(max = '') {
+    const types = ['input', 'meter', 'progress'];
+    if(!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.max = max;
+
+    return this;
+}
+
+Html.Element.prototype.MaxLength = function(maxLength = '') {
+    const types = ['input', 'textarea'];
+    if(!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.maxLength = maxLength;
+
+    return this;
+}
+
+Html.Element.prototype.Min = function(min = '') {
+    const types = ['input', 'meter'];
+    if(!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.min = min
+
+    return this;
+ }
 
 // Select elements
-// Html.Element.prototype.Option = function() { // only for select }
+Html.Element.prototype.Option = function() {
+    // only for select
+}
 // Html.Element.prototype.Options = function() { // only for select }
 // Html.Element.prototype.Selected = function() { // only for select }
 // Html.Element.prototype.OptGroup = function(optgroupLabelName, [options]) { // only for select }
@@ -284,7 +438,7 @@ Html.Element.prototype.AddAttribute = function(attribute, value) { }
  *
  * @param action {String} The value of the `name` attribute, e.g. 'MyName'.
 */
-HtmlCreator.prototype.Name = function(name) {
+HtmlCreator.prototype.Name = function(name = '') {
     const types = ['button', 'fieldset', 'form', 'iframe', 'input', 'map', 'meta', 'object', 'output', 'param', 'select', 'textarea'];
     if (!htmlIsOfType(this.element, types)) { return; }
 
@@ -299,7 +453,7 @@ HtmlCreator.prototype.Name = function(name) {
  *
  * @param action {String} The value of the `action` attribute, e.g. 'www.mysite.com'.
 */
-HtmlCreator.prototype.action = function(action = '') {
+HtmlCreator.prototype.Action = function(action = '') {
     if (!htmlIsOfType(this.element, ['form'])) { return; };
 
     this.element.action = action.toLowerCase();
@@ -312,7 +466,7 @@ HtmlCreator.prototype.action = function(action = '') {
  * @param formElement {HtmlElement} The form element you are setting the `method` attribute on.
  * @param method {String} The value of the `action` attribute, e.g. 'post'.
  */
-HtmlCreator.prototype.method = function(method = '') {
+HtmlCreator.prototype.Method = function(method = '') {
     if (!htmlIsOfType(this.element, ['form'])) { return; }
 
     this.element.method = method.toLowerCase();
@@ -335,6 +489,8 @@ HtmlCreator.prototype.AppendTo = function(domElement) {
   domElement.appendChild(this.element);
   return this;
 };
+
+// Private Functions
 
 /**A function that determines if the nodeName of the element passed in has the expected type.
  *
@@ -363,6 +519,8 @@ function htmlIsOfType(el, types = []) {
 
     return true;
 }
+
+function attributeIsOfType() { // todo }
 
 /**Checks if the thing passed in is either null or undefined.
  *
