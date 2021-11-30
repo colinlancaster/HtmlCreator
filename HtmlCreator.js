@@ -183,10 +183,11 @@ function HtmlCreator(elem) {
     this.element = (elem instanceof HTMLElement) ? elem : document.createElement(elem);
 };
 
-/**
+/**The HtmlAudioCreator object provides specific functionality related to `<audio>` elements.
  * 
- * @param {*} elem 
- * @returns 
+ * Inherets from the `HtmlCreator` object.
+ * 
+ * @param {String} elem - The name of the element.  
  */
 function HtmlAudioCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
@@ -196,15 +197,26 @@ function HtmlAudioCreator(elem) {
     this.element = document.createElement('audio');
 }
 
+/**The HtmlFormCreator object provides specific functionality related to `<form>` elements.
+ * 
+ * Inherets from the `HtmlCreator` object.
+ * 
+ * @param {String} elem - The name of the element.  
+ */
 function HtmlFormCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
 
-    // This is what provides the "extends" functionality inside ES Classes.
     HtmlCreator.call(this, elem);
 
     this.element = document.createElement('form');
 }
 
+/**The HtmlSelect object provides specific functionality related to `<select>` elements.
+ * 
+ * Inherets from the `HtmlCreator` object.
+ * 
+ * @param {String} elem - The name of the element.  
+ */
 function HtmlSelectCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
 
@@ -213,7 +225,12 @@ function HtmlSelectCreator(elem) {
     this.element = document.createElement('select');
 }
 
-
+/**The HtmlVideoCreator object provides specific functionality related to `<video>` elements.
+ * 
+ * Inherets from the `HtmlCreator` object.
+ * 
+ * @param {String} elem - The name of the element.  
+ */
 function HtmlVideoCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
 
@@ -222,17 +239,20 @@ function HtmlVideoCreator(elem) {
     this.element = document.createElement('video');
 }
 
-
-
 // ***********************************
 // Static Create Functions
 // ***********************************
 
-/**A static method that calls the `HtmlCreator` constructor and returns a chainable object. */
+/**A static method that calls the `HtmlCreator` constructor and returns a chainable object. 
+ * 
+ * @params {String} - The name of the element you want to create.
+ * 
+ * @returns `HtmlCreator`
+*/
 HtmlCreator.Create = function(elem) {
     if (isNullOrUndefined(elem)) { return; }
 
-    return new HtmlCreator(elem);
+    return new HtmlCreator(elem.toLowerCase());
 };
 
 /**A static method that calls the `HtmlFormCreator` constructor and returns a chainable object. */
@@ -393,6 +413,9 @@ HtmlCreator.prototype.DataAttribute = function(dataAttribute, value) {
     return this;
 }
 
+/**Activates the `draggable` attribute, i.e. sets `draggable` to `true`.
+ * 
+ */
 HtmlCreator.prototype.Draggable = function() {
     this.element.draggable = true;
 
@@ -421,6 +444,9 @@ HtmlCreator.prototype.OnClick = function(f) {
 // Shared Attributes (but not global)
 // ***********************************
 
+/**Sets the `required` attribute to `true`.
+ * 
+ */
 HtmlCreator.prototype.Required = function() {
     const types = ['input', 'select', 'textarea'];
     if (!htmlIsOfType(this.element, types)) { return; }
@@ -430,6 +456,10 @@ HtmlCreator.prototype.Required = function() {
     return this;
 }
 
+/**Sets the `checked` attribute to `true`.
+ *
+ * For use with the `<input>` element. 
+ */
 HtmlCreator.prototype.Checked = function() {
     const types = ['input'];
     if (!htmlIsOfType(this.element, types)) { return; }
@@ -439,6 +469,12 @@ HtmlCreator.prototype.Checked = function() {
     return this;
 }
 
+/**Ses the value of the `alt` attribute.
+ * 
+ * For use with the `<area>`, `<img>`, and `<input>` elements.
+ * 
+ * @param {String} altText The value of the `alt` attribute.
+ */
 HtmlCreator.prototype.AltText = function(altText = '') {
     if (isNullOrUndefined(altText)) { return; }
 
@@ -448,6 +484,10 @@ HtmlCreator.prototype.AltText = function(altText = '') {
     this.element.alt = altText;
 }
 
+/**Sets the `autofocus` property to `true`.
+ * 
+ * For use with the `<button>`, `<input>`, `<select>` and `<textarea>` elements.
+ */
 HtmlCreator.prototype.Autofocus = function() {
     const types = ['button', 'input', 'select', 'textarea'];
     if (!htmlIsOfType(this.element, types)) { return; }
@@ -457,7 +497,14 @@ HtmlCreator.prototype.Autofocus = function() {
     return this;
 }
 
-//_blank, _parent, _self, _top
+/**Sets the value of the `target` attribute.
+ * 
+ * Ensures that only `_blank`, `_parent`, `_self`, and `_top` can be used as the value of `target` attribute.
+ * 
+ * For use with the `<a>`, `<area>`, `<base>` and `<form>` elements.
+ * 
+ * @param {String} target The value of the `target` attribute.
+ */
 HtmlCreator.prototype.Target = function(target = '') {
     if (isNullOrUndefined(target)) { return; }
 
@@ -472,6 +519,12 @@ HtmlCreator.prototype.Target = function(target = '') {
     return this;
 }
 
+/**Sets the value of the `rel` attribute.
+ * 
+ * For use with the `<a>`, `<area>`, `<form>`, and `<link>` elements. 
+ * 
+ * @param {String} rel The value of the `rel` attribute.
+ */
 HtmlCreator.prototype.Rel = function(rel = '') {
     if (isNullOrUndefined(rel)) { return; }
 
@@ -483,6 +536,10 @@ HtmlCreator.prototype.Rel = function(rel = '') {
     return this;
 }
 
+/**Sets the value of the `disabled` attribute to `true`.
+ * 
+ * For use with the `<button>`, `<fieldset>`, `<input>`, `<optgroup>`, `<option>`, `<select>`, and `<textarea>` elements. 
+*/
 HtmlCreator.prototype.Disabled = function() {
     const types = ['button', 'fieldset', 'input', 'optgroup', 'option', 'select', 'textarea'];
     if (!htmlIsOfType(this.element, types)) { return; }
@@ -511,7 +568,7 @@ HtmlCreator.prototype.For = function(forAttributeValue = '') {
 
 /**Sets the `src` attribute.
  *
- * For the `<audio>`, `<embed>`, `<iframe>`, `<img>`, `<input>`, `<script>`, `<source>`, `<track>`, and `<video> elements.
+ * For use with the `<audio>`, `<embed>`, `<iframe>`, `<img>`, `<input>`, `<script>`, `<source>`, `<track>`, and `<video> elements.
  *
  * @param {String} src - The value of the `src` attribute.
  */
@@ -528,7 +585,7 @@ HtmlCreator.prototype.Src = function(src  = '') {
 
 /**Sets the `value` attribute.
  *
- * For the `<button>`, `<input>`, `<li>`, `<option>`, `<meter>`, `<progress>`, and `<param>` elements.
+ * For use with the `<button>`, `<input>`, `<li>`, `<option>`, `<meter>`, `<progress>`, and `<param>` elements.
  *
  * @param {String} value - The value of the `value` attribute.
  */
@@ -545,7 +602,7 @@ HtmlCreator.prototype.Value = function(value = '') {
 
 /**Sets the `href` attribute.
  *
- * For the `<a>`, `<area>`, `<base>`, and `<link>` elements.
+ * For use with the `<a>`, `<area>`, `<base>`, and `<link>` elements.
  *
  * @param {String} href - The value of the `href` attribute.
  */
@@ -562,7 +619,7 @@ HtmlCreator.prototype.Href = function(href = '') {
 
 /**Sets the `placeholder` attribute.
  *
- * For the `<input>` and `<textarea>` elements.
+ * For use with the `<input>` and `<textarea>` elements.
  *
  * @param {String} placeholder - The value of the `placeholder` attribute
  */
@@ -579,7 +636,7 @@ HtmlCreator.prototype.Placeholder = function(placeholder = '') {
 
 /**Sets the `max` attribute.
  *
- * For the `<input>`, `<meter>`, and `<progress>` elements.
+ * For use with the `<input>`, `<meter>`, and `<progress>` elements.
  *
  * @param {String} max - The value of the `max` attribute.
  */
@@ -596,7 +653,7 @@ HtmlCreator.prototype.Max = function(max = '') {
 
 /**Sets the `maxLength` attribute.
  *
- * For the `<input>` and `<textarea>` elements.
+ * For use with the `<input>` and `<textarea>` elements.
  *
  * @param {String} maxLength - The value of the `maxLength` attribute.
  *
@@ -614,7 +671,7 @@ HtmlCreator.prototype.MaxLength = function(maxLength = '') {
 
 /**Sets the `min` attribute.
  *
- * For the `<input>` and `<meter>` elements.
+ * For use with the `<input>` and `<meter>` elements.
  *
  * @param {String} min - The value of the `min` attribute.
  */
@@ -828,5 +885,3 @@ function isUndefined(arg) {
         return false;
     }
 }
-
-
