@@ -184,10 +184,10 @@ function HtmlCreator(elem) {
 };
 
 /**The HtmlAudioCreator object provides specific functionality related to `<audio>` elements.
- * 
+ *
  * Inherets from the `HtmlCreator` object.
- * 
- * @param {String} elem - The name of the element.  
+ *
+ * @param {String} elem - The name of the element.
  */
 function HtmlAudioCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
@@ -198,10 +198,10 @@ function HtmlAudioCreator(elem) {
 }
 
 /**The HtmlFormCreator object provides specific functionality related to `<form>` elements.
- * 
+ *
  * Inherets from the `HtmlCreator` object.
- * 
- * @param {String} elem - The name of the element.  
+ *
+ * @param {String} elem - The name of the element.
  */
 function HtmlFormCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
@@ -212,10 +212,10 @@ function HtmlFormCreator(elem) {
 }
 
 /**The HtmlSelect object provides specific functionality related to `<select>` elements.
- * 
+ *
  * Inherets from the `HtmlCreator` object.
- * 
- * @param {String} elem - The name of the element.  
+ *
+ * @param {String} elem - The name of the element.
  */
 function HtmlSelectCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
@@ -226,10 +226,10 @@ function HtmlSelectCreator(elem) {
 }
 
 /**The HtmlVideoCreator object provides specific functionality related to `<video>` elements.
- * 
+ *
  * Inherets from the `HtmlCreator` object.
- * 
- * @param {String} elem - The name of the element.  
+ *
+ * @param {String} elem - The name of the element.
  */
 function HtmlVideoCreator(elem) {
     if (isNullOrUndefined(elem)) { return; }
@@ -243,10 +243,10 @@ function HtmlVideoCreator(elem) {
 // Static Create Functions
 // ***********************************
 
-/**A static method that calls the `HtmlCreator` constructor and returns a chainable object. 
- * 
+/**A static method that calls the `HtmlCreator` constructor and returns a chainable object.
+ *
  * @params {String} - The name of the element you want to create.
- * 
+ *
  * @returns `HtmlCreator`
 */
 HtmlCreator.Create = function(elem) {
@@ -281,6 +281,56 @@ Object.setPrototypeOf(HtmlSelectCreator.prototype, HtmlCreator.prototype);
 Object.setPrototypeOf(HtmlVideoCreator.prototype, HtmlCreator.prototype);
 
 // ***********************************
+// Non-Attribute Related Functionality
+// ***********************************
+
+/**Appends any `HtmlElement` as a child of the current element.
+ *
+ * @param {HtmlElement} elem The element you want to add to this element.
+ */
+HtmlCreator.prototype.AddChild = function(elem) {
+    if (isNullOrUndefined(args)) { return; }
+
+    this.Append(elem);
+
+    return this;
+};
+
+/**Appends an array of any `HtmlElement`s to the current element.
+ *
+ * @param {Array} children An array of `HtmlElement`s that will be appended as children to the current element.
+ */
+HtmlCreator.prototype.AddChildren = function(children = []) {
+    if (isNullOrUndefined(children)) { return; }
+
+    for (child of children) {
+        this.AddChild(child);
+    }
+
+    return this;
+};
+
+// Appends an HtmlElement's inner element property
+// to the current HtmlElement.
+HtmlCreator.prototype.Append = function(HtmlCreator) {
+    if (isNullOrUndefined(HtmlCreator)) { return; }
+
+    this.element.appendChild(HtmlCreator.element);
+    return this;
+};
+
+/**Appends this element to a given `domElement`.
+ *
+ * @param {HTMLElement} domElement - The DOM element that you want to append this node to.
+ */
+HtmlCreator.prototype.AppendTo = function(domElement) {
+    if (isNullOrUndefined(domElement)) { return; }
+
+    domElement.appendChild(this.element);
+    return this;
+};
+
+// ***********************************
 // Global Attributes
 // ***********************************
 
@@ -303,6 +353,7 @@ HtmlCreator.prototype.Class = function(className) {
   if (isNullOrUndefined(className)) { return; }
 
   className && this.element.classList.add(className);
+
   return this;
 };
 
@@ -332,6 +383,7 @@ HtmlCreator.prototype.TextContent = function(text = '') {
     if (isNullOrUndefined(text)) { return; }
 
     this.element.textContent = text;
+
     return this;
 };
 
@@ -358,39 +410,6 @@ HtmlCreator.prototype.InnerHtml = function(innerHtml = '') {
     return this;
 }
 
-// {
-//     elem: 'div',
-//     id: 'testId',
-//     classes: ['class1', 'class2'],
-//     textContent: 'textContentStuff',
-// }
-//
-// Add single child element and append to parent
-HtmlCreator.prototype.AddChild = function(args = {}) {
-    if (isNullOrUndefined(args)) { return; }
-
-    const child = HtmlCreator.Create(args.elem)
-        .Id(args.id)
-        .Classes(args.classes) // addClasses can take an array or a comma-separated list
-        .TextContent(args.textContent);
-
-    this.Append(child);
-
-    return this;
-};
-
-// Add multiple child elements
-// Takes array of objects
-HtmlCreator.prototype.AddChildren = function(children = []) {
-    if (isNullOrUndefined(children)) { return; }
-
-    for (child of children) {
-        this.AddChild(child);
-    }
-
-    return this;
-};
-
 /**Sets any attribute as long as it is a valid attribute.
  *
  * @param {String} attribute - The attribute you want to set.
@@ -405,6 +424,11 @@ HtmlCreator.prototype.AddAttribute = function(attribute, value) {
     return this;
 }
 
+/**Sets both the name and the value of the `data` attribute.
+ *
+ * @param {String} dataAttribute The `data` property name value, e.g. `data-some-string='string'`.
+ * @param {*} value The value of the `data` property.
+ */
 HtmlCreator.prototype.DataAttribute = function(dataAttribute, value) {
     if (isNullOrUndefined(dataAttribute) || isNullOrUndefined(value)) { return; }
 
@@ -413,9 +437,7 @@ HtmlCreator.prototype.DataAttribute = function(dataAttribute, value) {
     return this;
 }
 
-/**Activates the `draggable` attribute, i.e. sets `draggable` to `true`.
- * 
- */
+/**Activates the `draggable` attribute and an element, i.e. sets `draggable` to `true`. */
 HtmlCreator.prototype.Draggable = function() {
     this.element.draggable = true;
 
@@ -444,9 +466,7 @@ HtmlCreator.prototype.OnClick = function(f) {
 // Shared Attributes (but not global)
 // ***********************************
 
-/**Sets the `required` attribute to `true`.
- * 
- */
+/**Sets the `required` attribute to `true`. */
 HtmlCreator.prototype.Required = function() {
     const types = ['input', 'select', 'textarea'];
     if (!htmlIsOfType(this.element, types)) { return; }
@@ -458,7 +478,7 @@ HtmlCreator.prototype.Required = function() {
 
 /**Sets the `checked` attribute to `true`.
  *
- * For use with the `<input>` element. 
+ * For use with the `<input>` element.
  */
 HtmlCreator.prototype.Checked = function() {
     const types = ['input'];
@@ -469,10 +489,10 @@ HtmlCreator.prototype.Checked = function() {
     return this;
 }
 
-/**Ses the value of the `alt` attribute.
- * 
+/**Sets the value of the `alt` attribute.
+ *
  * For use with the `<area>`, `<img>`, and `<input>` elements.
- * 
+ *
  * @param {String} altText The value of the `alt` attribute.
  */
 HtmlCreator.prototype.AltText = function(altText = '') {
@@ -485,7 +505,7 @@ HtmlCreator.prototype.AltText = function(altText = '') {
 }
 
 /**Sets the `autofocus` property to `true`.
- * 
+ *
  * For use with the `<button>`, `<input>`, `<select>` and `<textarea>` elements.
  */
 HtmlCreator.prototype.Autofocus = function() {
@@ -498,11 +518,11 @@ HtmlCreator.prototype.Autofocus = function() {
 }
 
 /**Sets the value of the `target` attribute.
- * 
+ *
  * Ensures that only `_blank`, `_parent`, `_self`, and `_top` can be used as the value of `target` attribute.
- * 
+ *
  * For use with the `<a>`, `<area>`, `<base>` and `<form>` elements.
- * 
+ *
  * @param {String} target The value of the `target` attribute.
  */
 HtmlCreator.prototype.Target = function(target = '') {
@@ -686,26 +706,6 @@ HtmlCreator.prototype.Min = function(min = '') {
     return this;
  }
 
-// Appends an HtmlElement's inner element property
-// to the current HtmlElement. Not chainable,
-// but would be if you add return this.
-HtmlCreator.prototype.Append = function(HtmlCreator) {
-    if (isNullOrUndefined(HtmlCreator)) { return; }
-
-    this.element.appendChild(HtmlCreator.element);
-    return this;
-};
-
-/**Appends this element to a given `domElement`.
- *
- * @param {HTMLElement} domElement - The DOM element that you want to append this node to.
- */
-HtmlCreator.prototype.AppendTo = function(domElement) {
-    if (isNullOrUndefined(domElement)) { return; }
-
-    domElement.appendChild(this.element);
-    return this;
-};
 
 /**Sets the `name` attribute on a variety of elements.
  *
@@ -727,8 +727,13 @@ HtmlCreator.prototype.Name = function(name = '') {
 // ***********************
 
 // TODO
-HtmlCreator.prototype.Option = function() {
-    // only for select
+HtmlSelectCreator.prototype.Option = function(value, isSelected) {
+    if (isNullOrUndefined(value) || isNullOrUndefined(isSelected)) { return; }
+
+    this.element.value = value;
+    this.element.isSelected = isSelected;
+
+    return this;
 }
 
 // TODO
