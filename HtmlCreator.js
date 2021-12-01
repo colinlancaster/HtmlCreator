@@ -289,7 +289,7 @@ Object.setPrototypeOf(HtmlVideoCreator.prototype, HtmlCreator.prototype);
  * @param {HtmlElement} elem The element you want to add to this element.
  */
 HtmlCreator.prototype.AddChild = function(elem) {
-    if (isNullOrUndefined(args)) { return; }
+    if (isNullOrUndefined(elem)) { return; }
 
     this.Append(elem);
 
@@ -312,10 +312,11 @@ HtmlCreator.prototype.AddChildren = function(children = []) {
 
 // Appends an HtmlElement's inner element property
 // to the current HtmlElement.
-HtmlCreator.prototype.Append = function(HtmlCreator) {
-    if (isNullOrUndefined(HtmlCreator)) { return; }
+HtmlCreator.prototype.Append = function(htmlElement) {
+    if (isNullOrUndefined(htmlElement)) { return; }
 
-    this.element.appendChild(HtmlCreator.element);
+    this.element.appendChild(htmlElement);
+
     return this;
 };
 
@@ -327,6 +328,7 @@ HtmlCreator.prototype.AppendTo = function(domElement) {
     if (isNullOrUndefined(domElement)) { return; }
 
     domElement.appendChild(this.element);
+
     return this;
 };
 
@@ -706,7 +708,6 @@ HtmlCreator.prototype.Min = function(min = '') {
     return this;
  }
 
-
 /**Sets the `name` attribute on a variety of elements.
  *
  * @param action {String} The value of the `name` attribute, e.g. 'MyName'.
@@ -726,24 +727,62 @@ HtmlCreator.prototype.Name = function(name = '') {
 // Select Elements
 // ***********************
 
-// TODO
+/**Creates an `<option>` element and appends it to the outer `<select>`.
+ *
+ * Only works in the context of having created a `<select>` first and then chaining the `.Option()` call to it.
+ *
+ * @param {String} value The value of the `value` attribute.
+ * @param {Boolean} isSelected Indicates whether or not the option should be selected.
+ */
 HtmlSelectCreator.prototype.Option = function(value, isSelected) {
     if (isNullOrUndefined(value) || isNullOrUndefined(isSelected)) { return; }
 
-    this.element.value = value;
-    this.element.isSelected = isSelected;
+    const option = HtmlCreator.Create('option');
+
+    option.element.value = value;
+    option.element.selected = isSelected;
+
+    // Append to the outer `<select>`.
+    option.AppendTo(this.element);
 
     return this;
 }
 
-// TODO
-// HtmlSelectCreator.prototype.Options = function() { // only for select }
+/**Creates multiple `<option>` elements and appends them to the outer select.
+ *
+ * @param {Array} options An array of objects with two keys: `value` and `isSelected`.
+ *
+ * @example HtmlSelectCreator.Create().Options({value: 'test', isSelected: true}, {value='test2', isSelected: false})
+ */
+HtmlSelectCreator.prototype.Options = function(...options) {
+	if (isNullOrUndefined(options)) { return; }
 
-// TODO
-// HtmlSelectCreator.prototype.Selected = function() { // only for select }
+	for (option of options) {
+		this.Option(option.value, option.isSelected);
+	}
 
-// TODO
-// HtmlSelectCreator.prototype.OptGroup = function(optgroupLabelName, [options]) { // only for select }
+	return this;
+}
+
+// let select = HtmlSelectCreator.Create().OptGroup('testLabel', false, {value: 'test', isSelected: true}, {value: 'test2', isSelected: false})
+HtmlSelectCreator.prototype.OptGroup = function(label, disabled, ...options) {
+	if (isNullOrUndefined(label) || isNullOrUndefined(disabled)) { return; }
+
+	const optgroup = HtmlCreator.Create('optgroup');
+
+	optgroup.label = label;
+	optgroup.disabled = disabled;
+
+	let opt;
+	for (option of options) {
+		opt = this.Option(option.value, option.isSelected);
+		opt.AppendTo(optgroup);
+	}
+
+	optgroup.AppendTo(this.element);
+
+	return this;
+}
 
 // ***********************
 // Forms
