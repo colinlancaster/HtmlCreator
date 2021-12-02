@@ -162,7 +162,7 @@ const allAttributes = [
   "value",
   "width",
   "wrap"
-]
+];
 
 // ***********************************
 // Constructors
@@ -240,7 +240,7 @@ function HtmlVideoCreator(elem) {
 }
 
 // ***********************************
-// Static Create Functions
+// Static `Create` Functions
 // ***********************************
 
 /**A static method that calls the `HtmlCreator` constructor and returns a chainable object.
@@ -274,6 +274,10 @@ HtmlAudioCreator.Create = function() {
 HtmlVideoCreator.Create = function() {
     return new HtmlVideoCreator('video');
 }
+
+// ***********************************
+// Ensure Prototypal Inheritance
+// ***********************************
 
 Object.setPrototypeOf(HtmlAudioCreator.prototype, HtmlCreator.prototype);
 Object.setPrototypeOf(HtmlFormCreator.prototype, HtmlCreator.prototype);
@@ -310,12 +314,18 @@ HtmlCreator.prototype.AddChildren = function(children = []) {
     return this;
 };
 
-// Appends an HtmlElement's inner element property
-// to the current HtmlElement.
+/**Appends any given node to the node the method is called on.
+ *
+ * The below example shows a `<p>` tag being appended to a `<div>` tag.
+ *
+ * @param {HtmlElement} htmlElement The element you would like to append.
+ *
+ * @example div.Append(p)
+ */
 HtmlCreator.prototype.Append = function(htmlElement) {
     if (isNullOrUndefined(htmlElement)) { return; }
 
-    this.element.appendChild(htmlElement);
+    this.element.appendChild(htmlElement.element);
 
     return this;
 };
@@ -323,6 +333,8 @@ HtmlCreator.prototype.Append = function(htmlElement) {
 /**Appends this element to a given `domElement`.
  *
  * @param {HTMLElement} domElement - The DOM element that you want to append this node to.
+ *
+ * @example `div.AppendTo(select)` appends a `<div>` to a `<select>`.
  */
 HtmlCreator.prototype.AppendTo = function(domElement) {
     if (isNullOrUndefined(domElement)) { return; }
@@ -401,7 +413,7 @@ HtmlCreator.prototype.InnerText = function(innerText = '') {
     return this;
 }
 
-/**Sets the innertHTML property of the node.
+/**Sets the innerHTML property of the node.
  * @param {String} innerHtml - The value of the innerHTML you want to set.
  */
 HtmlCreator.prototype.InnerHtml = function(innerHtml = '') {
@@ -559,8 +571,8 @@ HtmlCreator.prototype.Rel = function(rel = '') {
 }
 
 /**Sets the value of the `disabled` attribute to `true`.
- * 
- * For use with the `<button>`, `<fieldset>`, `<input>`, `<optgroup>`, `<option>`, `<select>`, and `<textarea>` elements. 
+ *
+ * For use with the `<button>`, `<fieldset>`, `<input>`, `<optgroup>`, `<option>`, `<select>`, and `<textarea>` elements.
 */
 HtmlCreator.prototype.Disabled = function() {
     const types = ['button', 'fieldset', 'input', 'optgroup', 'option', 'select', 'textarea'];
@@ -734,13 +746,14 @@ HtmlCreator.prototype.Name = function(name = '') {
  * @param {String} value The value of the `value` attribute.
  * @param {Boolean} isSelected Indicates whether or not the option should be selected.
  */
-HtmlSelectCreator.prototype.Option = function(value, isSelected) {
-    if (isNullOrUndefined(value) || isNullOrUndefined(isSelected)) { return; }
+HtmlSelectCreator.prototype.Option = function(value, isSelected, innerHtml) {
+    if (isNullOrUndefined(value) || isNullOrUndefined(isSelected) || isNullOrUndefined(innerHtml)) { return; }
 
     const option = HtmlCreator.Create('option');
 
     option.element.value = value;
     option.element.selected = isSelected;
+    option.element.innerHTML = innerHtml;
 
     // Append to the outer `<select>`.
     option.AppendTo(this.element);
@@ -752,34 +765,57 @@ HtmlSelectCreator.prototype.Option = function(value, isSelected) {
  *
  * @param {Array} options An array of objects with two keys: `value` and `isSelected`.
  *
- * @example HtmlSelectCreator.Create().Options({value: 'test', isSelected: true}, {value='test2', isSelected: false})
+ * @example let anotherThing = HtmlSelectCreator.Create().Options({value: 'test', isSelected: true, innerHtml: 'Some stuff'}, {value:'test2', isSelected: false, innerHtml: 'Some stuff'})
  */
 HtmlSelectCreator.prototype.Options = function(...options) {
 	if (isNullOrUndefined(options)) { return; }
 
 	for (option of options) {
-		this.Option(option.value, option.isSelected);
+		this.Option(option.value, option.isSelected, option.innerHtml);
 	}
 
 	return this;
 }
 
-// let select = HtmlSelectCreator.Create().OptGroup('testLabel', false, {value: 'test', isSelected: true}, {value: 'test2', isSelected: false})
+/**Creates an `<optgroup>` element, and optionally adds any given number of `<option>` elements to it.
+ *
+ * @param {String} label The name of the `<optgroup>` label.
+ * @param {*} disabled Indicates whether or not the `<optgroup>` is disabled.
+ * @param  {...any} options Comma separated objects or an array of objects that hold the values for `<option>` construction.
+ *
+ * @example let select = HtmlSelectCreator
+ *              .Create()
+ *              .OptGroup('
+ *                  testoptgrouplabel',
+ *                  false,
+ *                  { value: 'optvalue1', isSelected: true, body: 'Option1' },
+ *                  { value: 'optvalue2', isSelected: false, body: 'Option2' }
+ *              );
+ */
 HtmlSelectCreator.prototype.OptGroup = function(label, disabled, ...options) {
 	if (isNullOrUndefined(label) || isNullOrUndefined(disabled)) { return; }
 
 	const optgroup = HtmlCreator.Create('optgroup');
 
-	optgroup.label = label;
-	optgroup.disabled = disabled;
+	optgroup.element.label = label;
+	optgroup.element.disabled = disabled;
 
-	let opt;
-	for (option of options) {
-		opt = this.Option(option.value, option.isSelected);
-		opt.AppendTo(optgroup);
+	for (let option of options) {
+        const opt = HtmlCreator.Create('option');
+
+        opt.AddAttribute('value', option.value);
+
+        if (option.isSelected === 'selected') {
+            opt.AddAttribute('selected', option.isSelected);
+        }
+
+        opt.InnerHtml(option.body);
+
+        opt.AppendTo(optgroup.element);
 	}
 
-	optgroup.AppendTo(this.element);
+    // Append to the outer select
+    optgroup.AppendTo(this.element);
 
 	return this;
 }
