@@ -1029,13 +1029,6 @@ HtmlMediaCreator.prototype.Poster = function(poster = '') {
     return this;
 }
 
-// TODO
-// For Img
-// decoding
-    // sync
-    // async
-    // auto
-
 /**Sets the `decoding` attribute on the `<img>` tag.
  *
  * Strips any value other than:
@@ -1102,13 +1095,6 @@ HtmlMediaCreator.prototype.ReferrerPolicy = function(referrerPolicy) {
     return this;
 }
 
-// TODO
-// For Img
-// sizes
-    // Can be one or more strings separated by commas.
-    // Mozilla refers to the `(max-height: 500px)` part as a "media condition".
-    // The second part, `1000px`, refers to the source image's size value.
-    // example `(max-height: 500px) 1000px` - proposes to use a source of 1000px width, if the viewport is not higher than 500px.
 /**Sets the value of the `sizes` attribute for the `<img>` tag.
  *
  *  Can be one or more strings separated by commas.
