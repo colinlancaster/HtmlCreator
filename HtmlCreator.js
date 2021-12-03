@@ -183,20 +183,6 @@ function HtmlCreator(elem) {
     this.element = (elem instanceof HTMLElement) ? elem : document.createElement(elem);
 };
 
-/**The HtmlAudioCreator object provides specific functionality related to `<audio>` elements.
- *
- * Inherets from the `HtmlCreator` object.
- *
- * @param {String} elem - The name of the element.
- */
-function HtmlAudioCreator(elem) {
-    if (isNullOrUndefined(elem)) { return; }
-
-    HtmlCreator.call(this, elem);
-
-    this.element = document.createElement('audio');
-}
-
 /**The HtmlFormCreator object provides specific functionality related to `<form>` elements.
  *
  * Inherets from the `HtmlCreator` object.
@@ -211,6 +197,28 @@ function HtmlFormCreator(elem) {
     this.element = document.createElement('form');
 }
 
+/**The HtmlMediaCreator object provides specific functionality related to the `<video>`, `<audio>`, and `<img>` elements.
+ *
+ * Inherets from the `HtmlCreator` object.
+ *
+ * @param {String} elem - The name of the element.
+ */
+ function HtmlMediaCreator(elem) {
+    if (isNullOrUndefined(elem)) { return; }
+
+    HtmlCreator.call(this, elem);
+
+    if (elem.toLowerCase() === 'video') {
+        this.element = document.createElement('video');
+    } else if (elem.toLowerCase() === 'audio') {
+        this.element = document.createElement('audio');
+    } else if (elem.toLowerCase() === 'img') {
+        this.element = document.createElement('img');
+    } else {
+        return;
+    }
+}
+
 /**The HtmlSelect object provides specific functionality related to `<select>` elements.
  *
  * Inherets from the `HtmlCreator` object.
@@ -223,20 +231,6 @@ function HtmlSelectCreator(elem) {
     HtmlCreator.call(this, elem);
 
     this.element = document.createElement('select');
-}
-
-/**The HtmlVideoCreator object provides specific functionality related to `<video>` elements.
- *
- * Inherets from the `HtmlCreator` object.
- *
- * @param {String} elem - The name of the element.
- */
-function HtmlVideoCreator(elem) {
-    if (isNullOrUndefined(elem)) { return; }
-
-    HtmlCreator.call(this, elem);
-
-    this.element = document.createElement('video');
 }
 
 // ***********************************
@@ -265,24 +259,22 @@ HtmlSelectCreator.Create = function() {
     return new HtmlSelectCreator('select');
 }
 
-/**A static method that calls the `HtmlAudioCreator` constructor and returns a chainable object. */
-HtmlAudioCreator.Create = function() {
-    return new HtmlAudioCreator('audio');
-}
-
-/**A static method that calls the `HtmlVideoCreator` constructor and returns a chainable object. */
-HtmlVideoCreator.Create = function() {
-    return new HtmlVideoCreator('video');
+/**A static method that calls the `HtmlMediaCreator` constructor and returns a chainable object.
+ *
+ * @params {String} elem The name of the element you want to create, e.g. 'audio', 'video', or 'img'.
+ *
+*/
+HtmlMediaCreator.Create = function(elem) {
+    return new HtmlMediaCreator(elem);
 }
 
 // ***********************************
 // Ensure Prototypal Inheritance
 // ***********************************
 
-Object.setPrototypeOf(HtmlAudioCreator.prototype, HtmlCreator.prototype);
 Object.setPrototypeOf(HtmlFormCreator.prototype, HtmlCreator.prototype);
+Object.setPrototypeOf(HtmlMediaCreator.prototype, HtmlCreator.prototype);
 Object.setPrototypeOf(HtmlSelectCreator.prototype, HtmlCreator.prototype);
-Object.setPrototypeOf(HtmlVideoCreator.prototype, HtmlCreator.prototype);
 
 // ***********************************
 // Non-Attribute Related Functionality
@@ -480,29 +472,6 @@ HtmlCreator.prototype.OnClick = function(f) {
 // Shared Attributes (but not global)
 // ***********************************
 
-/**Sets the `required` attribute to `true`. */
-HtmlCreator.prototype.Required = function() {
-    const types = ['input', 'select', 'textarea'];
-    if (!htmlIsOfType(this.element, types)) { return; }
-
-    this.element.required = true;
-
-    return this;
-}
-
-/**Sets the `checked` attribute to `true`.
- *
- * For use with the `<input>` element.
- */
-HtmlCreator.prototype.Checked = function() {
-    const types = ['input'];
-    if (!htmlIsOfType(this.element, types)) { return; }
-
-    this.element.checked = true;
-
-    return this;
-}
-
 /**Sets the value of the `alt` attribute.
  *
  * For use with the `<area>`, `<img>`, and `<input>` elements.
@@ -531,41 +500,50 @@ HtmlCreator.prototype.Autofocus = function() {
     return this;
 }
 
-/**Sets the value of the `target` attribute.
- *
- * Ensures that only `_blank`, `_parent`, `_self`, and `_top` can be used as the value of `target` attribute.
- *
- * For use with the `<a>`, `<area>`, `<base>` and `<form>` elements.
- *
- * @param {String} target The value of the `target` attribute.
- */
-HtmlCreator.prototype.Target = function(target = '') {
-    if (isNullOrUndefined(target)) { return; }
+/**Activates the `autoplay` attribute for the `<audio>` and `<video>` elements. */
+HtmlCreator.prototype.Autoplay = function() {
+    const types = ['audio', 'video'];
+    if(!htmlIsOfType(this.element, types)) { return; }
 
-    const types = ['a', 'area', 'base', 'form'];
-    const targets = ['_blank', '_parent', '_self', '_top'];
-
-    if (!htmlIsOfType(this.element, types)) { return; }
-    if (!targets.includes(target)) { return; }
-
-    this.element.target = target;
+    this.element.autoplay = true;
 
     return this;
 }
 
-/**Sets the value of the `rel` attribute.
- * 
- * For use with the `<a>`, `<area>`, `<form>`, and `<link>` elements. 
- * 
- * @param {String} rel The value of the `rel` attribute.
- */
-HtmlCreator.prototype.Rel = function(rel = '') {
-    if (isNullOrUndefined(rel)) { return; }
+/**Activates the `controls` attribute for the `<audio>` and `<video>` elements. */
+HtmlCreator.prototype.Controls = function() {
+    const types = ['audio', 'video'];
+    if(!htmlIsOfType(this.element, types)) { return; }
 
-    const types = ['a', 'area', 'form', 'link'];
+    this.element.controls = true;
+
+    return this;
+}
+
+/**Sets the `crossorigin` attribute of a given element.
+ *
+ * @params {String} crossorigin The value of the `crossorigin` property you want to set, e.g. 'anonymous' or 'use-credentials'.
+ */
+HtmlCreator.CrossOrigin - function(crossorigin = '') {
+    if (isNullOrUndefined(crossorigin)) { return; }
+
+    const types = ['audio', 'img', 'link', 'script', 'video'];
+    if(!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.crossorigin = crossorigin;
+
+    return this;
+}
+
+/**Sets the `checked` attribute to `true`.
+ *
+ * For use with the `<input>` element.
+ */
+ HtmlCreator.prototype.Checked = function() {
+    const types = ['input'];
     if (!htmlIsOfType(this.element, types)) { return; }
 
-    this.element.rel = rel;
+    this.element.checked = true;
 
     return this;
 }
@@ -589,7 +567,7 @@ HtmlCreator.prototype.Disabled = function() {
  *
  * @param {String} forAttributeValue - The value of the `for` attribute.
  */
-HtmlCreator.prototype.For = function(forAttributeValue = '') {
+ HtmlCreator.prototype.For = function(forAttributeValue = '') {
     if (isNullOrUndefined(forAttributeValue)) { return; }
 
     const types = ['label', 'output'];
@@ -600,36 +578,29 @@ HtmlCreator.prototype.For = function(forAttributeValue = '') {
     return this;
 }
 
-/**Sets the `src` attribute.
+/**Adds height to the element passed in, if appropriate.
+ * Note that this is different than the style.height property available in CSS.
+ * This method is only available for the below-mentioned elements.
+ * Any attempt to add 'px' to the height attribute value, will result in that being stripped.
  *
- * For use with the `<audio>`, `<embed>`, `<iframe>`, `<img>`, `<input>`, `<script>`, `<source>`, `<track>`, and `<video> elements.
- *
- * @param {String} src - The value of the `src` attribute.
+ * @param {String} height A string that represents the height of the element. (No need to add 'px' to the end).
  */
-HtmlCreator.prototype.Src = function(src  = '') {
-    if (isNullOrUndefined(src)) { return; }
+HtmlCreator.prototype.Height = function(height = '') {
+    if (isNullOrUndefined(height)) { return; }
 
-    const types = ['audio', 'embed', 'iframe', 'img', 'input', 'script', 'source', 'track', 'video'];
-    if (!htmlIsOfType(this.element, types)) { return; }
+    const types = ['canvas', 'embed', 'iframe', 'img', 'input', 'object', 'video'];
+    if(!htmlIsOfType(this.element, types)) { return; }
 
-    this.element.src = src;
+    let finalHeight;
+    const heightIncludesPx = height.includes('px');
 
-    return this;
-}
+    if (heightIncludesPx) {
+        finalHeight = height.split('px')[0];
+    } else {
+        finalHeight = height;
+    }
 
-/**Sets the `value` attribute.
- *
- * For use with the `<button>`, `<input>`, `<li>`, `<option>`, `<meter>`, `<progress>`, and `<param>` elements.
- *
- * @param {String} value - The value of the `value` attribute.
- */
-HtmlCreator.prototype.Value = function(value = '') {
-    if (isNullOrUndefined(value)) { return; }
-
-    const types = ['button', 'input', 'li', 'option', 'meter', 'progress', 'param'];
-    if (!htmlIsOfType(this.element, types)) { return; }
-
-    this.element.value = value;
+    this.element.height = finalHeight;
 
     return this;
 }
@@ -640,7 +611,7 @@ HtmlCreator.prototype.Value = function(value = '') {
  *
  * @param {String} href - The value of the `href` attribute.
  */
-HtmlCreator.prototype.Href = function(href = '') {
+ HtmlCreator.prototype.Href = function(href = '') {
     if (isNullOrUndefined(href)) { return; }
 
     const types = ['a', 'area', 'base', 'link'];
@@ -651,19 +622,12 @@ HtmlCreator.prototype.Href = function(href = '') {
     return this;
 }
 
-/**Sets the `placeholder` attribute.
- *
- * For use with the `<input>` and `<textarea>` elements.
- *
- * @param {String} placeholder - The value of the `placeholder` attribute
- */
-HtmlCreator.prototype.Placeholder = function(placeholder = '') {
-    if (isNullOrUndefined(placeholder)) { return; }
-
-    const types = ['input', 'textarea'];
+/**Activates the `loop` attribute for the '<video>` and '<audio>` elements. */
+HtmlCreator.prototype.Loop = function() {
+    const types = ['audio', 'video'];
     if (!htmlIsOfType(this.element, types)) { return; }
 
-    this.element.placeholder = placeholder;
+    this.element.loop = true;
 
     return this;
 }
@@ -720,6 +684,16 @@ HtmlCreator.prototype.Min = function(min = '') {
     return this;
  }
 
+/**Activates the `muted` attribute for the `<video>` and `<audio>` elements. */
+HtmlCreator.prototype.Muted = function() {
+    const types = ['audio', 'video'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.muted = true;
+
+    return this;
+}
+
 /**Sets the `name` attribute on a variety of elements.
  *
  * @param action {String} The value of the `name` attribute, e.g. 'MyName'.
@@ -735,9 +709,227 @@ HtmlCreator.prototype.Name = function(name = '') {
     return this;
 }
 
+/**Sets the `placeholder` attribute.
+ *
+ * For use with the `<input>` and `<textarea>` elements.
+ *
+ * @param {String} placeholder - The value of the `placeholder` attribute
+ */
+ HtmlCreator.prototype.Placeholder = function(placeholder = '') {
+    if (isNullOrUndefined(placeholder)) { return; }
+
+    const types = ['input', 'textarea'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.placeholder = placeholder;
+
+    return this;
+}
+
+/**Sets the `preload` attribute value for the vudio or video elements.
+ *
+ * Acceptable options are:
+ *
+ *   - `none`: Indicates that the video should not be preloaded.
+ *
+ *   - `metadata`: Indicates that only video metadata (e.g. length) is fetched.
+ *
+ *   - `auto`: Indicates that whole video is downloadedable, even if the user doesn't use it.
+ *
+ *   - empty string or `""`: Synonym of the auto value.
+ *
+ * @param {String} preload The string value of the preload option.
+ */
+HtmlCreator.prototype.Preload = function(preload = '') {
+    if (isNullOrUndefined(preload)) { return; }
+
+    const types = ['audio', 'video'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.preload = preload;
+
+    return this;
+}
+
+/**Sets the value of the `rel` attribute.
+ *
+ * For use with the `<a>`, `<area>`, `<form>`, and `<link>` elements.
+ *
+ * @param {String} rel The value of the `rel` attribute.
+ */
+ HtmlCreator.prototype.Rel = function(rel = '') {
+    if (isNullOrUndefined(rel)) { return; }
+
+    const types = ['a', 'area', 'form', 'link'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.rel = rel;
+
+    return this;
+}
+
+/**Sets the `required` attribute to `true`. */
+HtmlCreator.prototype.Required = function() {
+    const types = ['input', 'select', 'textarea'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.required = true;
+
+    return this;
+}
+
+/**Sets the width of the `input` or `select` element, by units of character-width.
+ *
+ * If the input type is `text` or `password`, Size() defines the number of chars allow.
+ *
+ * Otherwise, it sets the width of an input (in characters) or the height of a select (in characters).
+ *
+ * @param {String} size The string representation of the size (in character-width) of the `<input>` or `<select>` elements.
+ *
+ * @example someInput.Size('20');
+ */
+HtmlCreator.prototype.Size = function(size) {
+    if ((isNullOrUndefined(size))
+        || (size < 0)
+        || (!typeof(size) === 'number')) { return; }
+
+    const types = ['input', 'select'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.size = size;
+
+    return this;
+}
+
+/**Sets the `src` attribute.
+ *
+ * For use with the `<audio>`, `<embed>`, `<iframe>`, `<img>`, `<input>`, `<script>`, `<source>`, `<track>`, and `<video> elements.
+ *
+ * @param {String} src - The value of the `src` attribute.
+ */
+ HtmlCreator.prototype.Src = function(src  = '') {
+    if (isNullOrUndefined(src)) { return; }
+
+    const types = ['audio', 'embed', 'iframe', 'img', 'input', 'script', 'source', 'track', 'video'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.src = src;
+
+    return this;
+}
+
+/**Sets the value of the `target` attribute.
+ *
+ * Ensures that only `_blank`, `_parent`, `_self`, and `_top` can be used as the value of `target` attribute.
+ *
+ * For use with the `<a>`, `<area>`, `<base>` and `<form>` elements.
+ *
+ * @param {String} target The value of the `target` attribute.
+ */
+ HtmlCreator.prototype.Target = function(target = '') {
+    if (isNullOrUndefined(target)) { return; }
+
+    const types = ['a', 'area', 'base', 'form'];
+    const targets = ['_blank', '_parent', '_self', '_top'];
+
+    if (!htmlIsOfType(this.element, types)) { return; }
+    if (!targets.includes(target)) { return; }
+
+    this.element.target = target;
+
+    return this;
+}
+
+/**Sets the `value` attribute.
+ *
+ * For use with the `<button>`, `<input>`, `<li>`, `<option>`, `<meter>`, `<progress>`, and `<param>` elements.
+ *
+ * @param {String} value - The value of the `value` attribute.
+ */
+ HtmlCreator.prototype.Value = function(value = '') {
+    if (isNullOrUndefined(value)) { return; }
+
+    const types = ['button', 'input', 'li', 'option', 'meter', 'progress', 'param'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    this.element.value = value;
+
+    return this;
+}
+
+/**Adds width to the element passed in, if appropriate.
+ * Note that this is different than the style.width property available in CSS.
+ * This method is only available for the below-mentioned elements.
+ * Any attempt to add 'px' to the width attribute value, will result in that being stripped.
+ *
+ * @param {String} width A string that represents the width of the element. (No need to add 'px' to the end).
+ */
+HtmlCreator.prototype.Width = function(width = '') {
+    if (isNullOrUndefined(width)) { return; }
+
+    const types = ['canvas', 'embed', 'iframe', 'img', 'input', 'object', 'video'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    let finalWidth;
+    const widthIncludesPx = width.includes('px');
+
+    if (widthIncludesPx) {
+        finalWidth = width.split('px')[0];
+    } else {
+        finalWidth = width;
+    }
+
+    this.element.width = finalWidth;
+
+    return this;
+}
+
 // ***********************
-// Select Elements
+// HtmlSelectCreator Methods
 // ***********************
+
+/**Creates an `<optgroup>` element, and optionally adds any given number of `<option>` elements to it.
+ *
+ * @param {String} label The name of the `<optgroup>` label.
+ * @param {*} disabled Indicates whether or not the `<optgroup>` is disabled.
+ * @param  {...any} options Comma separated objects or an array of objects that hold the values for `<option>` construction.
+ *
+ * @example let select = HtmlSelectCreator
+ *              .Create()
+ *              .OptGroup('
+ *                  testoptgrouplabel',
+ *                  false,
+ *                  { value: 'optvalue1', isSelected: true, body: 'Option1' },
+ *                  { value: 'optvalue2', isSelected: false, body: 'Option2' }
+ *              );
+ */
+ HtmlSelectCreator.prototype.Optgroup = function(label, disabled, ...options) {
+	if (isNullOrUndefined(label) || isNullOrUndefined(disabled)) { return; }
+
+	const optgroup = HtmlCreator.Create('optgroup');
+
+	optgroup.element.label = label;
+	optgroup.element.disabled = disabled;
+
+	for (let option of options) {
+        const opt = HtmlCreator.Create('option');
+
+        opt.AddAttribute('value', option.value);
+
+        if (option.isSelected === 'selected') {
+            opt.AddAttribute('selected', option.isSelected);
+        }
+
+        opt.InnerHtml(option.body);
+
+        opt.AppendTo(optgroup.element);
+	}
+
+    // Append to the outer select
+    optgroup.AppendTo(this.element);
+
+	return this;
+}
 
 /**Creates an `<option>` element and appends it to the outer `<select>`.
  *
@@ -777,51 +969,8 @@ HtmlSelectCreator.prototype.Options = function(...options) {
 	return this;
 }
 
-/**Creates an `<optgroup>` element, and optionally adds any given number of `<option>` elements to it.
- *
- * @param {String} label The name of the `<optgroup>` label.
- * @param {*} disabled Indicates whether or not the `<optgroup>` is disabled.
- * @param  {...any} options Comma separated objects or an array of objects that hold the values for `<option>` construction.
- *
- * @example let select = HtmlSelectCreator
- *              .Create()
- *              .OptGroup('
- *                  testoptgrouplabel',
- *                  false,
- *                  { value: 'optvalue1', isSelected: true, body: 'Option1' },
- *                  { value: 'optvalue2', isSelected: false, body: 'Option2' }
- *              );
- */
-HtmlSelectCreator.prototype.OptGroup = function(label, disabled, ...options) {
-	if (isNullOrUndefined(label) || isNullOrUndefined(disabled)) { return; }
-
-	const optgroup = HtmlCreator.Create('optgroup');
-
-	optgroup.element.label = label;
-	optgroup.element.disabled = disabled;
-
-	for (let option of options) {
-        const opt = HtmlCreator.Create('option');
-
-        opt.AddAttribute('value', option.value);
-
-        if (option.isSelected === 'selected') {
-            opt.AddAttribute('selected', option.isSelected);
-        }
-
-        opt.InnerHtml(option.body);
-
-        opt.AppendTo(optgroup.element);
-	}
-
-    // Append to the outer select
-    optgroup.AppendTo(this.element);
-
-	return this;
-}
-
 // ***********************
-// Forms
+// HtmlFormCreator Methods
 // ***********************
 
 /**Sets the `action` attribute on a `form` element.
@@ -854,8 +1003,101 @@ HtmlFormCreator.prototype.Action = function(action = '') {
  }
 
 // ***********************
+// HtmlMediaCreator Methods
+// ***********************
+
+// TODO
+// For Video
+HtmlMediaCreator.prototype.PlaysInline = function() {}
+
+// TODO
+// For Video
+HtmlMediaCreator.prototype.Poster = function() {}
+
+// TODO
+// For Img
+// decoding
+    // sync
+    // async
+    // auto
+HtmlMediaCreator.prototype.Decoding = function() {}
+
+// TODO
+// For Img
+// eager
+// lazy
+// img only
+HtmlMediaCreator.prototype.Loading = function() {}
+
+// TODO
+// For Img
+// referrerpolicy
+    // no-referrer
+    // no-referrer-when-downgrade
+    // origin
+    // origin-when-cross-origin
+    // same-origin
+    // strict-origin
+    // strict-origin-when-cross-origin
+    // unsafe-url
+    // For a, area, img, iframe, script or link attributes
+HtmlMediaCreator.prototype.ReferrerPolicy = function() {}
+
+// TODO
+// For Img
+// sizes
+    // Can be one or more strings separated by commas.
+    // Mozilla refers to the `(max-height: 500px)` part as a "media condition".
+    // The second part, `1000px`, refers to the source image's size value.
+    // example `(max-height: 500px) 1000px` - proposes to use a source of 1000px width, if the viewport is not higher than 500px.
+HtmlMediaCreator.prototype.Sizes = function() {}
+
+// TODO
+// For Img
+// srcset
+    // One ore more strings separated by commas.
+    // example
+    // <img srcset="elva-fairy-320w.jpg,
+    //              elva-fairy-480w.jpg 1.5x,
+    //              elva-fairy-640w.jpg 2x"
+    //              src="elva-fairy-640w.jpg"
+    //              alt="Elva dressed as a fairy">
+
+    // <img srcset="elva-fairy-480w.jpg 480w,
+    //              elva-fairy-800w.jpg 800w"
+    //      sizes="(max-width: 600px) 480px,
+    //             800px"
+    //      src="elva-fairy-800w.jpg"
+    //      alt="Elva dressed as a fairy"></img>
+
+// TODO
+// For Img
+HtmlMediaCreator.prototype.SrcSet = function() {}
+
+// TODO
+// For Img
+HtmlMediaCreator.prototype.UseMap = function() {}
+
+// ***********************
 // Private Functions
 // ***********************
+
+/**Checks to see if the attribute passed to the function actually exists.
+ *
+ * `allAttributes` is defined at the top of this file.
+ *
+ * @param {String} attribute - The attribute you are checking for existence.
+ * @returns {Boolean} - A boolean that indicates if a valid attribute has been passed to the function.
+ */
+ function attributeExists(attribute) {
+    if (isNullOrUndefined(attribute)) { return; }
+
+    const lowerAttribute = attribute.toLowerCase();
+
+    const attributeDoesExists = allAttributes.includes(lowerAttribute);
+
+    return attributeDoesExists;
+}
 
 /**A function that determines if the nodeName of the element passed in has the expected type.
  *
@@ -885,37 +1127,20 @@ function htmlIsOfType(el, types = []) {
     return true;
 }
 
-/**Checks to see if the attribute passed to the function actually exists.
+/**Checks if the thing passed in is null.
  *
- * `allAttributes` is defined at the top of this file.
+ * @param {any} arg Thing thing you are checking for null-ness.
  *
- * @param {String} attribute - The attribute you are checking for existence.
- * @returns {Boolean} - A boolean that indicates if a valid attribute has been passed to the function.
- */
-function attributeExists(attribute) {
-    if (isNullOrUndefined(attribute)) { return; }
-
-    const lowerAttribute = attribute.toLowerCase();
-
-    const attributeDoesExists = allAttributes.includes(lowerAttribute);
-
-    return attributeDoesExists;
-}
-
-/**Checks to see if the string provided matches the shape of a JS function call.
- *
- * E.g. Matches 'someFunc()', 'some_func()', 'someFunc(arg)', 'someFunc(arg1, arg1)', 'someFunc().anotherFunc()', etc.
- * @param {string} shape - The string you are checking the shape of.
- * @returns {boolean} - A boolean that indicates if the string passed to the function is of the shape of a JS function call.
- */
-function isShapeOfFunction(shape) {
-    if (isNullOrUndefined(shape)) { return; }
-
-    const regularExpression = /([a-zA-Z0-9_]\([^)]*\))/gi;
-
-    const matches = shape.match(regularExpression) ?? [];
-
-    return (matches.length > 0) ? true : false;
+ * @returns {boolean} A boolean that indicates if the argument is null.
+*/
+function isNull(arg) {
+    if (arguments.length < 1) {
+        return undefined;
+    } else if (arg === null) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /**Checks if the thing passed in is either null or undefined.
@@ -932,20 +1157,20 @@ function isNullOrUndefined(arg) {
     return false;
 }
 
-/**Checks if the thing passed in is null.
+/**Checks to see if the string provided matches the shape of a JS function call.
  *
- * @param {any} arg Thing thing you are checking for null-ness.
- *
- * @returns {boolean} A boolean that indicates if the argument is null.
-*/
-function isNull(arg) {
-    if (arguments.length < 1) {
-        return undefined;
-    } else if (arg === null) {
-        return true;
-    } else {
-        return false;
-    }
+ * E.g. Matches 'someFunc()', 'some_func()', 'someFunc(arg)', 'someFunc(arg1, arg1)', 'someFunc().anotherFunc()', etc.
+ * @param {string} shape - The string you are checking the shape of.
+ * @returns {boolean} - A boolean that indicates if the string passed to the function is of the shape of a JS function call.
+ */
+function isShapeOfFunction(shape) {
+    if (isNullOrUndefined(shape)) { return; }
+
+    const regularExpression = /([a-zA-Z0-9_]\([^)]*\))/gi;
+
+    const matches = shape.match(regularExpression) ?? [];
+
+    return (matches.length > 0) ? true : false;
 }
 
 /**Checks to see if the supplied argument is equal to undefined.
