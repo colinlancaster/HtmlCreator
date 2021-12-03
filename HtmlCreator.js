@@ -726,7 +726,7 @@ HtmlCreator.prototype.Name = function(name = '') {
     return this;
 }
 
-/**Sets the `preload` attribute value for the vudio or video elements.
+/**Sets the `preload` attribute value for the video or video elements.
  *
  * Acceptable options are:
  *
@@ -1006,13 +1006,28 @@ HtmlFormCreator.prototype.Action = function(action = '') {
 // HtmlMediaCreator Methods
 // ***********************
 
-// TODO
-// For Video
-HtmlMediaCreator.prototype.PlaysInline = function() {}
+/**Activates the `playsinline` attribute on the `<video>` element the method is applied to. */
+HtmlMediaCreator.prototype.PlaysInline = function() {
+    if (!htmlIsOfType(this.element, ['video'])) { return; }
 
-// TODO
-// For Video
-HtmlMediaCreator.prototype.Poster = function() {}
+    this.element.setAttribute('playsinline', '');
+
+    return this;
+}
+
+/**Activates the `poster` attribute on the `<video>` element the method is applied to.
+ *
+ * @param {String} poster The value of the `poster` attribute.
+ */
+HtmlMediaCreator.prototype.Poster = function(poster = '') {
+    if (isNullOrUndefined(poster)) { return; }
+
+    if (!htmlIsOfType(this.element, ['video'])) { return; }
+
+    this.element.poster = poster;
+
+    return this;
+}
 
 // TODO
 // For Img
@@ -1020,28 +1035,72 @@ HtmlMediaCreator.prototype.Poster = function() {}
     // sync
     // async
     // auto
-HtmlMediaCreator.prototype.Decoding = function() {}
 
-// TODO
-// For Img
-// eager
-// lazy
-// img only
-HtmlMediaCreator.prototype.Loading = function() {}
+/**Sets the `decoding` attribute on the `<img>` tag.
+ *
+ * Strips any value other than:
+ *
+ * - 'sync'
+ *
+ * - 'async'
+ *
+ * - 'auto'
+ *
+ * @param {String} decoding The value of the `decoding` attribute, e.g. 'sync', 'async', or 'auto'.
+ *
+ */
+HtmlMediaCreator.prototype.Decoding = function(decoding = '') {
+    if (isNullOrUndefined(decoding)) { return; }
+    if (!htmlIsOfType(this.element, ['img'])) { return; }
 
-// TODO
-// For Img
-// referrerpolicy
-    // no-referrer
-    // no-referrer-when-downgrade
-    // origin
-    // origin-when-cross-origin
-    // same-origin
-    // strict-origin
-    // strict-origin-when-cross-origin
-    // unsafe-url
-    // For a, area, img, iframe, script or link attributes
-HtmlMediaCreator.prototype.ReferrerPolicy = function() {}
+    const decodingOptions = ['sync', 'async', 'auto'];
+
+    const isAnOption = decodingOptions.includes(decoding);
+
+    isAnOption ? this.element.decoding = decoding : this.element.decoding = '';
+
+    return this;
+}
+
+/**Sets the value of the `loading` attribute on the `<img>` tag.
+ *
+ * Strips all values other than 'eager' and 'loading'
+ *
+ * @param {String} loading The string value you want to set the attribute to, e.g. 'eager' or 'lazy'. All other values will be stripped.
+ */
+HtmlMediaCreator.prototype.Loading = function(loading) {
+    if (stringIsEmptyOrWhiteSpace(loading) || isNullOrUndefined(loading)) { return; }
+    if (!htmlIsOfType(this.element, ['img'])) { return; }
+
+    const loadingOptions = ['eager', 'lazy'];
+
+    const isAnOption = loadingOptions.includes(loading);
+
+    isAnOption ? this.element.loading = loading : this.element.loading = '';
+
+    return this;
+}
+
+/**Sets the value of the `referrerPolicy` attribute on a number of tags.
+ *
+ * Strips all values other than the ones listed in the `referrerPolicyOptions` array.
+ *
+ * @param {String} referrerPolicy The string value you want to set the `referrerPolicy` attribute to.
+ */
+HtmlMediaCreator.prototype.ReferrerPolicy = function(referrerPolicy) {
+    if (stringIsEmptyOrWhiteSpace(referrerPolicy) || isNullOrUndefined(referrerPolicy)) { return; }
+
+    const types = ['a', 'area', 'img', 'iframe', 'script', 'link'];
+    if (!htmlIsOfType(this.element, types)) { return; }
+
+    const referrerPolicyOptions = ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url'];
+
+    const isAnOption = referrerPolicyOptions.includes(referrerPolicy);
+
+    isAnOption ? this.element.referrerPolicy = referrerPolicy : this.element.referrerPolicy = '';
+
+    return this;
+}
 
 // TODO
 // For Img
@@ -1050,33 +1109,67 @@ HtmlMediaCreator.prototype.ReferrerPolicy = function() {}
     // Mozilla refers to the `(max-height: 500px)` part as a "media condition".
     // The second part, `1000px`, refers to the source image's size value.
     // example `(max-height: 500px) 1000px` - proposes to use a source of 1000px width, if the viewport is not higher than 500px.
-HtmlMediaCreator.prototype.Sizes = function() {}
+/**Sets the value of the `sizes` attribute for the `<img>` tag.
+ *
+ *  Can be one or more strings separated by commas.
+ *
+ *  Mozilla refers to the `(max-height: 500px)` part as a "media condition".
+ *
+ *  The second part, `1000px`, refers to the source image's size value.
+ *
+ *  example `(max-height: 500px) 1000px` - proposes to use a source of 1000px width, if the viewport is not higher than 500px.
+ *
+ * See docs: https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
+ *
+ * @param {String} sizes The value of the `sizes` attribute. Set this at your own risk. Make sure you know what you are getting into.
+ */
+HtmlMediaCreator.prototype.Sizes = function(sizes) {
+    if(stringIsEmptyOrWhiteSpace(sizes) || isNullOrUndefined(sizes)) { return; }
+    if (!htmlIsOfType(this.element, ['img'])) { return; }
 
-// TODO
-// For Img
-// srcset
-    // One ore more strings separated by commas.
-    // example
-    // <img srcset="elva-fairy-320w.jpg,
-    //              elva-fairy-480w.jpg 1.5x,
-    //              elva-fairy-640w.jpg 2x"
-    //              src="elva-fairy-640w.jpg"
-    //              alt="Elva dressed as a fairy">
+    this.element.sizes = sizes;
 
-    // <img srcset="elva-fairy-480w.jpg 480w,
-    //              elva-fairy-800w.jpg 800w"
-    //      sizes="(max-width: 600px) 480px,
-    //             800px"
-    //      src="elva-fairy-800w.jpg"
-    //      alt="Elva dressed as a fairy"></img>
+    return this;
+}
 
-// TODO
-// For Img
-HtmlMediaCreator.prototype.SrcSet = function() {}
+/**Sets the value of the `srcset` attribute
+ *
+ *  One ore more strings separated by commas.
+ * @example   <img srcset="elva-fairy-320w.jpg,
+                 elva-fairy-480w.jpg 1.5x,
+                 elva-fairy-640w.jpg 2x"
+                 src="elva-fairy-640w.jpg"
+                 alt="Elva dressed as a fairy">
+* @example <img srcset="elva-fairy-480w.jpg 480w,
+                        elva-fairy-800w.jpg 800w"
+                sizes="(max-width: 600px) 480px,
+                        800px"
+                src="elva-fairy-800w.jpg"
+                alt="Elva dressed as a fairy"></img>
+ *
+ * @param {String} srcSet The value of the `srcset` attribute. Use at your own risk. Read the docs.
+ */
+HtmlMediaCreator.prototype.SrcSet = function(srcSet) {
+    if (stringIsEmptyOrWhiteSpace(srcSet) || isNullOrUndefined(srcSet)) { return; }
+    if (!htmlIsOfType(this.element, ['img'])) { return; }
 
-// TODO
-// For Img
-HtmlMediaCreator.prototype.UseMap = function() {}
+    this.element.srcset = srcSet;
+
+    return this;
+}
+
+/**Sets the value of the `usemap` attribute.
+ *
+ * @param {String} usemap The value of the `usemap` attribute
+ */
+HtmlMediaCreator.prototype.UseMap = function(usemap) {
+    if (stringIsEmptyOrWhiteSpace(usemap) || isNullOrUndefined(usemap)) { return; }
+    if (!htmlIsOfType(this.element, ['img'])) { return; }
+
+    this.element.useMap = usemap
+
+    return this;
+}
 
 // ***********************
 // Private Functions
@@ -1125,6 +1218,18 @@ function htmlIsOfType(el, types = []) {
     if (!doesIncludeType) { return false; }
 
     return true;
+}
+
+/**Checks to see if the string passed in is empty or whitespace.
+ *
+ * @param {String} str - The string you are checking for emptiness and whitespace-ness.
+ */
+function stringIsEmptyOrWhiteSpace(str) {
+    if (isNullOrUndefined(str)) { return; }
+    const isWhitespace = str.replace(/\s/g, '').length === 0 ? true : false;
+    const isEmpty = str === '' ? true : false;
+
+    return (isWhitespace || isEmpty);
 }
 
 /**Checks if the thing passed in is null.

@@ -1,4 +1,24 @@
 {
   "standard.enable": false,
-  "tslint.enable": false
+  "tslint.enable": false,
+  "cSpell.words": [
+    "accesskey",
+    "chainable",
+    "colspan",
+    "contenteditable",
+    "crossorigin",
+    "downloadedable",
+    "formaction",
+    "Inherets",
+    "maxlength",
+    "mysite",
+    "novalidate",
+    "onsearch",
+    "optvalue",
+    "playsinline",
+    "referrerpolicy",
+    "rowspan",
+    "tabindex",
+    "testoptgrouplabel"
+  ]
 }
